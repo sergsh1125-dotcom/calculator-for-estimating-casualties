@@ -45,17 +45,36 @@ st.markdown("""
     .results-card {
         border: 1px solid #1e293b;
         background-color: #111827;
-        padding: 16px;
+        padding: 18px;
         border-radius: 4px;
         margin-top: 15px;
+        font-size: 15px;
+        line-height: 1.6;
     }
     
-    .results-card h4 {
+    .results-main-title {
         color: #FFD700;
-        margin-top: 10px;
-        margin-bottom: 8px;
-        font-size: 15px;
+        font-weight: bold;
+        font-size: 17px;
         text-transform: uppercase;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 6px;
+    }
+    
+    .category-title {
+        color: #ffffff;
+        font-weight: bold;
+        margin-top: 12px;
+        margin-bottom: 4px;
+    }
+    
+    .indent-1 {
+        margin-left: 15px;
+    }
+    
+    .indent-2 {
+        margin-left: 30px;
     }
     
     div.stButton > button:first-child {
@@ -122,39 +141,50 @@ if st.session_state.calculated:
     data = RADII_DATA[yield_val]
     density_ppl = density_val * 1000
 
-    # 1. Травми
-    s_tr_s = calc_area(data["trauma"]["severe"])
-    s_tr_m = calc_area(data["trauma"]["moderate"], data["trauma"]["severe"])
-    s_tr_l = calc_area(data["trauma"]["light"], data["trauma"]["moderate"])
+    # 1. Травми (кількість осіб)
+    n_tr_sev = int(calc_area(data["trauma"]["severe"]) * density_ppl)
+    n_tr_mod = int(calc_area(data["trauma"]["moderate"], data["trauma"]["severe"]) * density_ppl)
+    n_tr_lit = int(calc_area(data["trauma"]["light"], data["trauma"]["moderate"]) * density_ppl)
+    n_tr_total = n_tr_sev + n_tr_mod + n_tr_lit
 
-    # 2. Опіки
-    s_b_3 = calc_area(data["burns"]["degree_3"])
-    s_b_2 = calc_area(data["burns"]["degree_2"], data["burns"]["degree_3"])
-    s_b_1 = calc_area(data["burns"]["degree_1"], data["burns"]["degree_2"])
+    # 2. Опіки (кількість осіб)
+    n_b_3 = int(calc_area(data["burns"]["degree_3"]) * density_ppl)
+    n_b_2 = int(calc_area(data["burns"]["degree_2"], data["burns"]["degree_3"]) * density_ppl)
+    n_b_1 = int(calc_area(data["burns"]["degree_1"], data["burns"]["degree_2"]) * density_ppl)
+    n_b_total = n_b_3 + n_b_2 + n_b_1
 
-    # 3. ГПХ
-    s_r_4 = calc_area(data["radiation"]["degree_4"])
-    s_r_3 = calc_area(data["radiation"]["degree_3"], data["radiation"]["degree_4"])
-    s_r_2 = calc_area(data["radiation"]["degree_2"], data["radiation"]["degree_3"])
-    s_r_1 = calc_area(data["radiation"]["degree_1"], data["radiation"]["degree_2"])
+    # 3. ГПХ (кількість осіб)
+    n_r_4 = int(calc_area(data["radiation"]["degree_4"]) * density_ppl)
+    n_r_3 = int(calc_area(data["radiation"]["degree_3"], data["radiation"]["degree_4"]) * density_ppl)
+    n_r_2 = int(calc_area(data["radiation"]["degree_2"], data["radiation"]["degree_3"]) * density_ppl)
+    n_r_1 = int(calc_area(data["radiation"]["degree_1"], data["radiation"]["degree_2"]) * density_ppl)
+    n_r_total = n_r_4 + n_r_3 + n_r_2 + n_r_1
 
     st.markdown(f"""
     <div class="results-card">
-        <h4>1. Травми (Ударна хвиля):</h4>
-        • Важкий ступінь: <span class="val-highlight">{int(s_tr_s * density_ppl):,} осіб</span> (S = {s_tr_s:.2f} км²)<br>
-        • Середній ступінь: <span class="val-highlight">{int(s_tr_m * density_ppl):,} осіб</span> (S = {s_tr_m:.2f} км²)<br>
-        • Легкий ступінь: <span class="val-highlight">{int(s_tr_l * density_ppl):,} осіб</span> (S = {s_tr_l:.2f} км²)
+        <div class="results-main-title">Розрахункові дані:</div>
         
-        <h4>2. Термічні опіки (Світлове випромінювання):</h4>
-        • III ступінь: <span class="val-highlight">{int(s_b_3 * density_ppl):,} осіб</span> (S = {s_b_3:.2f} км²)<br>
-        • II ступінь: <span class="val-highlight">{int(s_b_2 * density_ppl):,} осіб</span> (S = {s_b_2:.2f} км²)<br>
-        • I ступінь: <span class="val-highlight">{int(s_b_1 * density_ppl):,} осіб</span> (S = {s_b_1:.2f} км²)
+        <div class="category-title">Кількість постраждалих з механічними та баротравмами:</div>
+        <div class="indent-1">• всього: <span class="val-highlight">{n_tr_total:,} осіб</span></div>
+        <div class="indent-1">• у тому числі:</div>
+        <div class="indent-2">- важкий ступінь: <span class="val-highlight">{n_tr_sev:,} осіб</span></div>
+        <div class="indent-2">- середній ступінь: <span class="val-highlight">{n_tr_mod:,} осіб</span></div>
+        <div class="indent-2">- легкий ступінь: <span class="val-highlight">{n_tr_lit:,} осіб</span></div>
         
-        <h4>3. Гостра променева хвороба (Проникаюча радіація):</h4>
-        • IV ступінь: <span class="val-highlight">{int(s_r_4 * density_ppl):,} осіб</span> (S = {s_r_4:.2f} км²)<br>
-        • III ступінь: <span class="val-highlight">{int(s_r_3 * density_ppl):,} осіб</span> (S = {s_r_3:.2f} км²)<br>
-        • II ступінь: <span class="val-highlight">{int(s_r_2 * density_ppl):,} осіб</span> (S = {s_r_2:.2f} км²)<br>
-        • I ступінь: <span class="val-highlight">{int(s_r_1 * density_ppl):,} осіб</span> (S = {s_r_1:.2f} км²)
+        <div class="category-title">Кількість постраждалих з опіками:</div>
+        <div class="indent-1">• всього: <span class="val-highlight">{n_b_total:,} осіб</span></div>
+        <div class="indent-1">• у тому числі:</div>
+        <div class="indent-2">- ІІІ ступінь: <span class="val-highlight">{n_b_3:,} осіб</span></div>
+        <div class="indent-2">- ІІ ступінь: <span class="val-highlight">{n_b_2:,} осіб</span></div>
+        <div class="indent-2">- І ступінь: <span class="val-highlight">{n_b_1:,} осіб</span></div>
+        
+        <div class="category-title">Кількість постраждалих з променевою хворобою:</div>
+        <div class="indent-1">• всього: <span class="val-highlight">{n_r_total:,} осіб</span></div>
+        <div class="indent-1">• у тому числі:</div>
+        <div class="indent-2">- IV ступінь: <span class="val-highlight">{n_r_4:,} осіб</span></div>
+        <div class="indent-2">- ІІІ ступінь: <span class="val-highlight">{n_r_3:,} осіб</span></div>
+        <div class="indent-2">- ІІ ступінь: <span class="val-highlight">{n_r_2:,} осіб</span></div>
+        <div class="indent-2">- І ступінь: <span class="val-highlight">{n_r_1:,} осіб</span></div>
     </div>
     """, unsafe_allow_html=True)
 
