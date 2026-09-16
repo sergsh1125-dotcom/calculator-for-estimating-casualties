@@ -1,8 +1,3 @@
-"""
-Нормативні радіуси ураження ядерного вибуху (в км) та параметри візуалізації.
-Джерело: DOD/DOE (Glasstone & Dolan), FEMA Planning Guidance.
-"""
-
 RADII_DATA = {
     0.5: {
         "trauma": {"severe": 0.22, "moderate": 0.32, "light": 0.55},
