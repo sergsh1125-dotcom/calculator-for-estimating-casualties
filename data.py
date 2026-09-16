@@ -33,10 +33,9 @@ RADII_DATA = {
 
 # Кольорова гама та стиль зон для інтерактивної карти
 ZONE_STYLES = [
-    {"key": ("trauma", "light"), "name": "Слабкі руйнування (10 кПа / 1 psi)", "color": "#708090", "fill_opacity": 0.25},
-    {"key": ("burns", "degree_1"), "name": "Опіки I ступеня", "color": "#FFD700", "fill_opacity": 0.20},
-    {"key": ("trauma", "moderate"), "name": "Помірні руйнування (30 кПа / 3-5 psi)", "color": "#FF8C00", "fill_opacity": 0.35},
-    {"key": ("burns", "degree_3"), "name": "Опіки III ступеня", "color": "#FF4500", "fill_opacity": 0.35},
-    {"key": ("radiation", "degree_4"), "name": "Проникаюча радіація (ГПХ IV ст.)", "color": "#32CD32", "fill_opacity": 0.40},
-    {"key": ("trauma", "severe"), "name": "Сильні руйнування (50 кПа / 20 psi)", "color": "#8B0000", "fill_opacity": 0.50},
+    {"key": ("trauma", "light"), "name": "Слабкі руйнування (3.5 кПа)", "color": "#708090", "fill_opacity": 0.25},
+    {"key": ("burns", "degree_1"), "name": "Опіки IІ ступеня", "color": "#FFD700", "fill_opacity": 0.20},
+    {"key": ("trauma", "moderate"), "name": "Помірні руйнування (10 кПа)", "color": "#FF8C00", "fill_opacity": 0.35},
+    {"key": ("radiation", "degree_4"), "name": "Проникаюча радіація (ГПХ І ст.)", "color": "#32CD32", "fill_opacity": 0.40},
+    {"key": ("trauma", "severe"), "name": "Значні руйнування (45 кПа)", "color": "#8B0000", "fill_opacity": 0.50},
 ]
