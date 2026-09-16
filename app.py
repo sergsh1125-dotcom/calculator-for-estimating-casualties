@@ -6,7 +6,7 @@ from data import RADII_DATA, ZONE_STYLES
 
 # 1. Широкоекрана конфігурація (двоколоночний макет)
 st.set_page_config(
-    page_title="Прогнозування втрат від ядерного вибуху",
+    page_title="Прогнозування втрат населення під час ядерного вибуху",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -110,7 +110,7 @@ col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 with col_left:
     st.markdown('<div class="app-title">Прогнозування втрат населення під час ядерного вибуху</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="sec-header">Вихідні дані вибуху</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-header">Вихідні дані</div>', unsafe_allow_html=True)
     yield_val = st.selectbox(
         "Потужність ядерного вибуху (Кт):",
         options=list(RADII_DATA.keys()),
@@ -121,7 +121,7 @@ with col_left:
     
     st.markdown('<div class="sec-header">Характеристики території</div>', unsafe_allow_html=True)
     density_val = st.number_input(
-        "Щільність населення в районі застосування (тис. осіб/кв. км):",
+        "Щільність населення в районі ядерного вибуху (тис. осіб/кв. км):",
         min_value=0.1,
         max_value=100.0,
         value=4.0,
@@ -130,7 +130,7 @@ with col_left:
     
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="sec-header">Координати епіцентру вибуху</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-header">Координати епіцентру ядерного вибуху</div>', unsafe_allow_html=True)
     col_lat, col_lon = st.columns(2)
     with col_lat:
         lat_val = st.number_input("Широта (Lat):", value=50.4501, format="%.4f")
@@ -165,8 +165,8 @@ with col_right:
     # Верхній інфо-бар
     st.markdown(
         f'''<div class="map-top-bar">
-            <span>Максимальний радіус зони ураження: {max_radius:.2f} км</span>
-            <span>Площа зони ураження: {max_area:.2f} км²</span>
+            <span>Радіус зони ураження від ударної хвилі: {max_radius:.2f} км</span>
+            <span>Площа зони ураження від ударної хвилі: {max_area:.2f} км²</span>
         </div>''', 
         unsafe_allow_html=True
     )
@@ -254,19 +254,19 @@ with col_right:
         html_results = f"""
 <div class="results-card">
 <div class="res-main-title">РОЗРАХУНКОВІ ДАНІ (КОМБІНОВАНІ УРАЖЕННЯ):</div>
-<div class="res-section-title">Загальна кількість унікальних постраждалих:</div>
-<div class="res-cat-1">• всього поранених та уражених: <span class="val-white">{int(total_unique):,} осіб</span></div>
+<div class="res-section-title">Загальна кількість постраждалих:</div>
+<div class="res-cat-1">• всього постраждалих: <span class="val-white">{int(total_unique):,} осіб</span></div>
 
-<div class="res-section-title">1. Потрійні комбіновані ураження (Травми + Опіки + ГПХ):</div>
+<div class="res-section-title">1. Комбіновані ураження (механічні травми + опіки + променева хвороба):</div>
 <div class="res-cat-1">• всього: <span class="val-white">{int(triple_comb):,} осіб</span></div>
 
-<div class="res-section-title">2. Двокомпонентні комбіновані ураження:</div>
+<div class="res-section-title">2. Комбіновані ураження (дія двох факторів ураження):</div>
 <div class="res-cat-1">• всього: <span class="val-white">{int(double_total):,} осіб</span></div>
 <div class="res-cat-2">- термомеханічні (Травма + Опік): <span class="val-white">{int(double_thermo_mech):,} осіб</span></div>
 <div class="res-cat-2">- радіаційно-термічні (Опік + ГПХ): <span class="val-white">{int(double_rad_burn):,} осіб</span></div>
 <div class="res-cat-2">- радіаційно-механічні (Травма + ГПХ): <span class="val-white">{int(double_rad_trauma):,} осіб</span></div>
 
-<div class="res-section-title">3. Однофакторні (ізольовані) ураження:</div>
+<div class="res-section-title">3. Ураження (дія одного фактору ураження):</div>
 <div class="res-cat-1">• всього: <span class="val-white">{int(iso_total):,} осіб</span></div>
 <div class="res-cat-2">- тільки термічні опіки: <span class="val-white">{int(iso_burn):,} осіб</span></div>
 <div class="res-cat-2">- тільки механічні травми: <span class="val-white">{int(iso_trauma):,} осіб</span></div>
