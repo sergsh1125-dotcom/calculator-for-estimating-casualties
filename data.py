@@ -1,5 +1,5 @@
 """
-Нормативні радіуси ураження ядерного вибуху (в км).
+Нормативні радіуси ураження ядерного вибуху (в км) та параметри візуалізації.
 Джерело: DOD/DOE (Glasstone & Dolan), FEMA Planning Guidance.
 """
 
@@ -30,3 +30,13 @@ RADII_DATA = {
         "radiation": {"degree_4": 1.50, "degree_3": 1.80, "degree_2": 2.10, "degree_1": 2.50}
     }
 }
+
+# Кольорова гама та стиль зон для інтерактивної карти
+ZONE_STYLES = [
+    {"key": ("trauma", "light"), "name": "Слабкі руйнування (10 кПа / 1 psi)", "color": "#708090", "fill_opacity": 0.25},
+    {"key": ("burns", "degree_1"), "name": "Опіки I ступеня", "color": "#FFD700", "fill_opacity": 0.20},
+    {"key": ("trauma", "moderate"), "name": "Помірні руйнування (30 кПа / 3-5 psi)", "color": "#FF8C00", "fill_opacity": 0.35},
+    {"key": ("burns", "degree_3"), "name": "Опіки III ступеня", "color": "#FF4500", "fill_opacity": 0.35},
+    {"key": ("radiation", "degree_4"), "name": "Проникаюча радіація (ГПХ IV ст.)", "color": "#32CD32", "fill_opacity": 0.40},
+    {"key": ("trauma", "severe"), "name": "Сильні руйнування (50 кПа / 20 psi)", "color": "#8B0000", "fill_opacity": 0.50},
+]
