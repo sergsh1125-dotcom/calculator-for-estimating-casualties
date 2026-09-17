@@ -77,17 +77,17 @@ st.markdown("""
         margin-top: 12px; 
         margin-bottom: 4px; 
     }
-    .res-cat-1 { font-size: 13px; margin-left: 12px; margin-top: 2px; }
+    .res-cat-1 { font-size: 13px; margin-left: 12px; margin-top: 2px; color: #E0E0E0; }
     .res-cat-2 { font-size: 13px; margin-left: 28px; margin-top: 1px; }
     .val-white { color: #FFFFFF !important; font-weight: bold; }
     
-    /* Кольорові класи під колір зон */
-    .color-sev { color: #FF4D4D !important; }
-    .color-mod { color: #FFA500 !important; }
-    .color-lit { color: #FFD700 !important; }
-    .color-tr  { color: #64B5F6 !important; }
-    .color-b   { color: #D2B48C !important; }
-    .color-r   { color: #FF8DA1 !important; }
+    /* Точні кольори зон для текстів результатів */
+    .color-sev { color: #FF0000 !important; font-weight: bold; } /* Червоний */
+    .color-mod { color: #FF8C00 !important; font-weight: bold; } /* Помаранчевий */
+    .color-lit { color: #FFD700 !important; font-weight: bold; } /* Жовтий */
+    .color-tr  { color: #1E90FF !important; font-weight: bold; } /* Синій (Травми) */
+    .color-b   { color: #CD853F !important; font-weight: bold; } /* Коричневий (Опіки) */
+    .color-r   { color: #FF69B4 !important; font-weight: bold; } /* Рожевий (Променева хвороба) */
     
     div.stButton > button:first-child {
         width: 100%;
@@ -127,7 +127,6 @@ with col_left:
     
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
-    # Поміняли місцями: Координати центрів ЯВ
     st.markdown('<div class="sec-header">Координати епіцентру ядерного вибуху</div>', unsafe_allow_html=True)
     col_lat, col_lon = st.columns(2)
     with col_lat:
@@ -137,7 +136,6 @@ with col_left:
         
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
-    # Перейменовано на "Населення"
     st.markdown('<div class="sec-header">Населення</div>', unsafe_allow_html=True)
     density_val = st.number_input(
         "Щільність населення в районі ядерного вибуху (тис. осіб/кв. км):",
@@ -166,7 +164,7 @@ if btn_calc:
 with col_right:
     data = RADII_DATA[yield_val]
     
-    # Визначаємо максимальний радіус серед усіх зон
+    # Визначаємо максимальний радіус дій чинників вибуху
     max_radius = max(
         data["destruction"]["light"],
         data["trauma"]["light"],
@@ -184,17 +182,17 @@ with col_right:
         unsafe_allow_html=True
     )
 
-    # Налаштування стилів та кольорів зон за вимогами
+    # Точний перелік 6 зон для відображення на карті
     MAP_ZONE_STYLES = [
-        {"cat": "destruction", "sub": "severe",   "name": "Зона сильних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill_opacity": 0.45},
-        {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill_opacity": 0.35},
-        {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",       "color": "#FFD700", "fill_opacity": 0.25},
-        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (легкі травми)",         "color": "#1E90FF", "fill_opacity": 0.30},
-        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I ступеня)",           "color": "#A52A2A", "fill_opacity": 0.30},
-        {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)",     "color": "#FF69B4", "fill_opacity": 0.35},
+        {"cat": "destruction", "sub": "severe",   "name": "Зона сильних руйнувань (44.8 кПа)",   "color": "#FF0000", "fill_opacity": 0.40},
+        {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",  "color": "#FF8C00", "fill_opacity": 0.35},
+        {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",   "color": "#FFD700", "fill_opacity": 0.25},
+        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (синій колір)",      "color": "#1E90FF", "fill_opacity": 0.25},
+        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (I ступінь)",            "color": "#CD853F", "fill_opacity": 0.25},
+        {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)","color": "#FF69B4", "fill_opacity": 0.30},
     ]
 
-    # Карта OpenStreetMap / Esri Satellite
+    # Інтерактивна карта
     m = folium.Map(location=[lat_val, lon_val], zoom_start=11, tiles=None)
     
     folium.TileLayer('openstreetmap', name='OpenStreetMap').add_to(m)
@@ -204,7 +202,7 @@ with col_right:
         name='Супутникова карта'
     ).add_to(m)
 
-    # Побудова кіл (від найбільшого до найменшого, щоб менші не перекривалися)
+    # Сортування зон за спаданням радіуса, щоб менші не перекривалися
     zones_to_draw = []
     for style in MAP_ZONE_STYLES:
         cat, sub = style["cat"], style["sub"]
@@ -241,21 +239,20 @@ with col_right:
     folium.LayerControl(position='topright').add_to(m)
     st_folium(m, width=None, height=460, use_container_width=True)
 
-    # --- ВИВІД РЕЗУЛЬТАТІВ РОЗРАХУНКУ ---
+    # --- РОЗРАХУНОК ТА ВИВІД ВТРАТ ---
     if st.session_state.calculated:
-        density_ppl = density_val * 1000  # Перевід у осіб/км²
+        density_ppl = density_val * 1000  # Перевід в осіб/км²
 
-        # Радіуси руйнувань
+        # Межеві радіуси
         r_dest_sev = data["destruction"]["severe"]
         r_dest_mod = data["destruction"]["moderate"]
         r_dest_lit = data["destruction"]["light"]
 
-        # Радіуси ураження людини
         r_tr_sev, r_tr_mod, r_tr_lit = data["trauma"]["severe"], data["trauma"]["moderate"], data["trauma"]["light"]
         r_b_3, r_b_2, r_b_1 = data["burns"]["degree_3"], data["burns"]["degree_2"], data["burns"]["degree_1"]
         r_r_4, r_r_3, r_r_2, r_r_1 = data["radiation"]["degree_4"], data["radiation"]["degree_3"], data["radiation"]["degree_2"], data["radiation"]["degree_1"]
 
-        # Отримуємо впорядкований список усіх унікальних межевих радіусів
+        # Унікальний порядок радіусів для точного кільцевого інтегрування
         all_radii = sorted(list(set([
             0.0, r_dest_sev, r_dest_mod, r_dest_lit,
             r_tr_sev, r_tr_mod, r_tr_lit,
@@ -263,7 +260,6 @@ with col_right:
             r_r_4, r_r_3, r_r_2, r_r_1
         ])))
 
-        # Змінні акумулятори
         pop_all_zones = 0.0
         pop_dest_sev = 0.0
         pop_dest_mod = 0.0
@@ -279,7 +275,6 @@ with col_right:
         has_burns_total = 0.0
         has_rad_total = 0.0
 
-        # Інтегрування по кільцевих секторах між радіусами
         for i in range(len(all_radii) - 1):
             r_in, r_out = all_radii[i], all_radii[i+1]
             r_mid = (r_in + r_out) / 2.0
@@ -287,18 +282,17 @@ with col_right:
             area = math.pi * (r_out**2 - r_in**2)
             pop = area * density_ppl
 
-            # Перевірка належності до зон руйнувань
+            # Належність до зон руйнувань
             in_dest_sev = r_mid <= r_dest_sev
             in_dest_mod = (r_mid <= r_dest_mod) and not in_dest_sev
             in_dest_lit = (r_mid <= r_dest_lit) and not (in_dest_sev or in_dest_mod)
             in_any_dest = r_mid <= r_dest_lit
 
-            # Перевірка факторів ураження людини
+            # Фактори ураження людини
             has_tr = r_mid <= r_tr_lit
             has_b = r_mid <= r_b_1
             has_r = r_mid <= r_r_1
 
-            # 1. Загальне населення у зонах
             if in_any_dest or has_tr or has_b or has_r:
                 pop_all_zones += pop
 
@@ -309,7 +303,7 @@ with col_right:
             elif in_dest_lit:
                 pop_dest_lit += pop
 
-            # 2. ПОСТРАЖДАЛІ (ВИКЛЮЧНО ті, хто потрапив у зони травм, опіків або променевої хвороби!)
+            # Постраждалі — ТІЛЬКИ ті, хто піддався дії травм, опіків або променевої хвороби
             is_casualty = has_tr or has_b or has_r
             if is_casualty:
                 total_casualties += pop
@@ -321,12 +315,11 @@ with col_right:
                 elif in_dest_lit:
                     cas_dest_lit += pop
 
-                # 3. Комбіновані ураження (2 або більше факторів ураження)
+                # Комбіновані (2+ фактори ураження)
                 factors_count = sum([has_tr, has_b, has_r])
                 if factors_count >= 2:
                     comb_total += pop
 
-                # Окремий облік за факторами серед постраждалих
                 if has_tr:
                     has_trauma_total += pop
                 if has_b:
@@ -342,7 +335,7 @@ with col_right:
 
         html_results = f"""
 <div class="results-card">
-    <div class="res-main-title">РОЗРАХУНКОВІ ДАНІ ВТРАТ НАСЕЛЕННЯ:</div>
+    <div class="res-main-title">РОЗРАХУНКОВІ ДАНІ ВТРАТ НАСЕЛЕННЯ</div>
 
     <div class="res-section-title">1. Кількість людей, яка опинилася у зонах дій вибуху:</div>
     <div class="res-cat-1">• У ВСІХ ЗОНАХ РАЗОМ: <span class="val-white">{fmt(pop_all_zones)} осіб</span></div>
@@ -351,7 +344,7 @@ with col_right:
     <div class="res-cat-2 color-mod">- зона помірних руйнувань: <span class="val-white">{fmt(pop_dest_mod)} осіб</span></div>
     <div class="res-cat-2 color-lit">- зона слабких руйнувань: <span class="val-white">{fmt(pop_dest_lit)} осіб</span></div>
 
-    <div class="res-section-title">2. Кількість постраждалих (отримали ураження):</div>
+    <div class="res-section-title">2. Кількість постраждалих:</div>
     <div class="res-cat-1">• ВСЬОГО (у всіх зонах разом): <span class="val-white">{fmt(total_casualties)} осіб</span></div>
     <div class="res-cat-1">• У зонах руйнування ОКРЕМО: <span class="val-white">{fmt(cas_dest_total)} осіб</span></div>
     <div class="res-cat-2 color-sev">- у зоні сильних руйнувань: <span class="val-white">{fmt(cas_dest_sev)} осіб</span></div>
@@ -359,7 +352,7 @@ with col_right:
     <div class="res-cat-2 color-lit">- у зоні слабких руйнувань: <span class="val-white">{fmt(cas_dest_lit)} осіб</span></div>
 
     <div class="res-section-title">3. У ТОМУ ЧИСЛІ ПОСТРАЖДАЛИХ:</div>
-    <div class="res-cat-1">• з комбінованими ураженнями (без врахування кількості факторів): <span class="val-white">{fmt(comb_total)} осіб</span></div>
+    <div class="res-cat-1">• з комбінованими ураженнями: <span class="val-white">{fmt(comb_total)} осіб</span></div>
     <div class="res-cat-1">• у тому числі із всіх постраждалих мають:</div>
     <div class="res-cat-2 color-tr">- травми (разом легкі, середні та важкі): <span class="val-white">{fmt(has_trauma_total)} осіб</span></div>
     <div class="res-cat-2 color-b">- опіки (всіх ступенів разом): <span class="val-white">{fmt(has_burns_total)} осіб</span></div>
