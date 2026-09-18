@@ -111,7 +111,7 @@ st.markdown("""
 if "calculated" not in st.session_state:
     st.session_state.calculated = False
 
-# ДВОКОЛОНКОВИЙ МАКЕТ GOЛОВНОЇ СТОРІНКИ
+# ДВОКОЛОНКОВИЙ МАКЕТ ГОЛОВНОЇ СТОРІНКИ
 col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
 # --- ЛІВА ПАНЕЛЬ: ВХІДНІ ДАНІ ---
@@ -227,7 +227,6 @@ with col_right:
             popup=f"<b>{zone['name']}</b><br>Радіус: {zone['radius_km']:.2f} км"
         ).add_to(m)
 
-    # Темний маркер епіцентру (для контрасту з червоним колом)
     folium.Marker(
         [lat_val, lon_val],
         popup="<b>Епіцентр вибуху</b>",
@@ -241,33 +240,41 @@ with col_right:
     if st.session_state.calculated:
         density_ppl = density_val * 1000
 
-        # Радіуси руйнувань
+        # 1. Радіуси руйнувань
         r_dest_sev = data["destruction"]["severe"]
         r_dest_mod = data["destruction"]["moderate"]
         r_dest_lit = data["destruction"]["light"]
 
-        # Радіуси травм
-        r_tr_sev = data["trauma"]["severe"]
-        r_tr_mod = data["trauma"]["moderate"]
-        r_tr_lit = data["trauma"]["light"]
+        # 2. Радіуси травм
+        r_tr_sev = data["trauma"]["severe"]      # P >= 100 кПа
+        r_tr_mod = data["trauma"]["moderate"]    # P >= 50 кПа
+        r_tr_lit = data["trauma"]["light"]       # P >= 20 кПа
 
-        # Радіуси опіків та радіації
+        # 3. Радіуси опіків та радіації
         r_b_3, r_b_2, r_b_1 = data["burns"]["degree_3"], data["burns"]["degree_2"], data["burns"]["degree_1"]
         r_r_4, r_r_3, r_r_2, r_r_1 = data["radiation"]["degree_4"], data["radiation"]["degree_3"], data["radiation"]["degree_2"], data["radiation"]["degree_1"]
 
-        # Обчислення площ зон (кв. км)
+        # 4. Обчислення площ зон руйнувань
         s_dest_sev = math.pi * (r_dest_sev ** 2)
         s_dest_mod = math.pi * (r_dest_mod ** 2)
         s_dest_lit = math.pi * (r_dest_lit ** 2)
 
-        s_tr_lit = math.pi * (r_tr_lit ** 2)
-        s_tr_mod = math.pi * (r_tr_mod ** 2)
-        s_tr_sev = math.pi * (r_tr_sev ** 2)
+        # 5. Обчислення площ зон травмування як окремих кілець
+        s_tr_sev = math.pi * (r_tr_sev ** 2)                                # Важкі (круг)
+        s_tr_mod = math.pi * max(0.0, (r_tr_mod ** 2) - (r_tr_sev ** 2))    # Середні (кільце)
+        s_tr_lit = math.pi * max(0.0, (r_tr_lit ** 2) - (r_tr_mod ** 2))    # Легкі (кільце)
 
+        # Сумарна площа ураження травмами (легкі + середні + важкі)
+        s_tr_total = s_tr_sev + s_tr_mod + s_tr_lit
+
+        # 6. Площі опіків та радіації
         s_b_1 = math.pi * (r_b_1 ** 2)
         s_r_1 = math.pi * (r_r_1 ** 2)
 
-        # Інтегрування населення та втрат
+        # 7. Розрахунок кількості постраждалих з травмами за сумою площ
+        has_trauma_total = s_tr_total * density_ppl
+
+        # Інтегрування населення для інших факторів
         all_radii = sorted(list(set([
             0.0, r_dest_sev, r_dest_mod, r_dest_lit,
             r_tr_sev, r_tr_mod, r_tr_lit,
@@ -281,8 +288,6 @@ with col_right:
         pop_dest_lit = 0.0
 
         total_casualties = 0.0
-
-        has_trauma_total = 0.0
         has_burns_total = 0.0
         has_rad_total = 0.0
 
@@ -316,8 +321,6 @@ with col_right:
             if is_casualty:
                 total_casualties += pop
 
-                if has_tr:
-                    has_trauma_total += pop
                 if has_b:
                     has_burns_total += pop
                 if has_r:
@@ -360,9 +363,9 @@ with col_right:
 <div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
 
-<div class="res-section-title">Параметри зон травмування:</div>
-<div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
-<div class="res-cat-1 color-tr">• R зони травмування (середнє) (Р=50 кПа) — <span class="val-white">{fmt_float(r_tr_mod)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_mod)} кв.км</span>)</div>
+<div class="res-section-title">Параметри зон травмування (окремі кільця):</div>
+<div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
+<div class="res-cat-1 color-tr">• R зони травмування (середнє) (Р=50 кПа) — <span class="val-white">{fmt_float(r_tr_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-tr">• R зони травмування (важке) (Р=100 кПа) — <span class="val-white">{fmt_float(r_tr_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_sev)} кв.км</span>)</div>
 
 <div class="res-section-title">Параметри світлового та радіаційного ураження:</div>
