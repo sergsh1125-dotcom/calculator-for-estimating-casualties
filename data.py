@@ -100,7 +100,7 @@ ZONE_STYLES = [
     },
     {
         "key": ("burns", "degree_1"),
-        "name": "Опіки I ступеня",
+        "name": "Опіки I-ІІІ ступенів",
         "color": "#FFD700",
         "fill_opacity": 0.25,
     },
