@@ -82,7 +82,6 @@ st.markdown("""
     .res-cat-2 { font-size: 13px; margin-left: 24px; margin-top: 2px; }
     .val-white { color: #FFFFFF !important; font-weight: bold; }
     
-    /* Яскраві кольори зон */
     .color-sev { color: #FF0000 !important; font-weight: bold; }
     .color-mod { color: #FF8C00 !important; font-weight: bold; }
     .color-lit { color: #FFD700 !important; font-weight: bold; }
@@ -165,11 +164,14 @@ if btn_calc:
 with col_right:
     data = RADII_DATA[yield_val]
     
+    # Радіус ГПХ I ступеня є максимальним радіусом променевого ураження
+    r_rad_max = data["radiation"]["degree_1"]
+    
     max_radius = max(
         data["destruction"]["light"],
         data["trauma"]["light"],
         data["burns"]["degree_1"],
-        data["radiation"]["degree_1"]
+        r_rad_max
     )
     max_area = math.pi * (max_radius ** 2)
 
@@ -263,7 +265,7 @@ with col_right:
         s_tr_sev = math.pi * (r_tr_sev ** 2)
 
         s_b_1 = math.pi * (r_b_1 ** 2)
-        s_r_1 = math.pi * (r_r_1 ** 2)
+        s_r_1 = math.pi * (r_r_1 ** 2)  # Площа зони ГПХ I ст. (включає I, II, III ст.)
 
         # Інтегрування населення та втрат
         all_radii = sorted(list(set([
@@ -302,7 +304,7 @@ with col_right:
 
             has_tr = r_mid <= r_tr_lit
             has_b = r_mid <= r_b_1
-            has_r = r_mid <= r_r_1
+            has_r = r_mid <= r_r_1  # Межа ураження радіацією (ГПХ I-III ст.)
 
             if in_any_dest or has_tr or has_b or has_r:
                 pop_all_zones += pop
@@ -345,7 +347,6 @@ with col_right:
         def fmt_float(val: float) -> str:
             return f"{val:.2f}".replace(".", ",")
 
-        # Формування під-колонок
         res_col1, res_col2 = st.columns(2, gap="medium")
 
         with res_col1:
@@ -378,7 +379,7 @@ with col_right:
 <div class="res-section-title">Параметри зон руйнувань:</div>
 <div class="res-cat-1 color-sev">• R зони значних руйнувань (Р=44,8 кПа) — <span class="val-white">{fmt_float(r_dest_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_sev)} кв.км</span>)</div>
 <div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
-<div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа — <span class="val-float">{fmt_float(s_dest_lit)} кв.км</span>)</div>
+<div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
 
 <div class="res-section-title">Параметри зон травмування:</div>
 <div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
@@ -387,6 +388,6 @@ with col_right:
 
 <div class="res-section-title">Параметри світлового та радіаційного ураження:</div>
 <div class="res-cat-1 color-b">• R зони опіків шкіри без захисту (I-ІІІ ступенів) — <span class="val-white">{fmt_float(r_b_1)} км</span> (площа — <span class="val-white">{fmt_float(s_b_1)} кв.км</span>)</div>
-<div class="res-cat-1 color-r">• R зони гострої променевої хвороби (І-ІII ступенів) (2 кал/кв. см) — <span class="val-white">{fmt_float(r_r_1)} км</span> (площа — <span class="val-white">{fmt_float(s_r_1)} кв.км</span>)</div>
+<div class="res-cat-1 color-r">• R зони гострої променевої хвороби (І-ІII ступенів) — <span class="val-white">{fmt_float(r_r_1)} км</span> (площа — <span class="val-white">{fmt_float(s_r_1)} кв.км</span>)</div>
 </div>"""
             st.markdown(html_radii, unsafe_allow_html=True)
