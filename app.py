@@ -182,13 +182,14 @@ with col_right:
         unsafe_allow_html=True
     )
 
+    # Налаштування стилів зон на карті (для опіків та радіації fill встановлено в False)
     MAP_ZONE_STYLES = [
-        {"cat": "destruction", "sub": "severe",   "name": "Зона сильних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill_opacity": 0.40},
-        {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill_opacity": 0.35},
-        {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",       "color": "#FFD700", "fill_opacity": 0.25},
-        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (радіус легких травм)",  "color": "#1E90FF", "fill_opacity": 0.25},
-        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I ступеня)",           "color": "#A52A2A", "fill_opacity": 0.25},
-        {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)",     "color": "#FF69B4", "fill_opacity": 0.30},
+        {"cat": "destruction", "sub": "severe",   "name": "Зона значних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill": True,  "fill_opacity": 0.40},
+        {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill": True,  "fill_opacity": 0.35},
+        {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",       "color": "#FFD700", "fill": True,  "fill_opacity": 0.25},
+        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (радіус легких травм)",  "color": "#1E90FF", "fill": True,  "fill_opacity": 0.25},
+        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I ступеня)",           "color": "#A52A2A", "fill": False, "fill_opacity": 0.00},
+        {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
 
     m = folium.Map(location=[lat_val, lon_val], zoom_start=11, tiles=None)
@@ -210,6 +211,7 @@ with col_right:
                 "radius_m": r_km * 1000,
                 "radius_km": r_km,
                 "color": style["color"],
+                "fill": style["fill"],
                 "fill_opacity": style["fill_opacity"]
             })
             
@@ -220,10 +222,10 @@ with col_right:
             location=[lat_val, lon_val],
             radius=zone["radius_m"],
             color=zone["color"],
-            fill=True,
+            fill=zone["fill"],
             fill_color=zone["color"],
             fill_opacity=zone["fill_opacity"],
-            weight=1.5,
+            weight=2.0 if not zone["fill"] else 1.5,
             popup=f"<b>{zone['name']}</b><br>Радіус: {zone['radius_km']:.2f} км"
         ).add_to(m)
 
@@ -255,7 +257,7 @@ with col_right:
         r_r_4, r_r_3, r_r_2, r_r_1 = data["radiation"]["degree_4"], data["radiation"]["degree_3"], data["radiation"]["degree_2"], data["radiation"]["degree_1"]
 
         # 4. Обчислення площ зон руйнувань як окремих кілець
-        s_dest_sev = math.pi * (r_dest_sev ** 2)                                 # Сильні (круг)
+        s_dest_sev = math.pi * (r_dest_sev ** 2)                                 # Значні (круг)
         s_dest_mod = math.pi * max(0.0, (r_dest_mod ** 2) - (r_dest_sev ** 2))   # Помірні (кільце)
         s_dest_lit = math.pi * max(0.0, (r_dest_lit ** 2) - (r_dest_mod ** 2))   # Слабкі (кільце)
 
