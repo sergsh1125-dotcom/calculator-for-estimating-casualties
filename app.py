@@ -176,8 +176,8 @@ with col_right:
 
     st.markdown(
         f'''<div class="map-top-bar">
-            <span>Максимальний радіус дії чинників: {max_radius:.2f} км</span>
-            <span>Загальна площа зони дій вибуху: {max_area:.2f} км²</span>
+            <span>Радіус зони ураження ядерного вибуху: {max_radius:.2f} км</span>
+            <span>Площа зони ураження ядерного вибуху: {max_area:.2f} км²</span>
         </div>''', 
         unsafe_allow_html=True
     )
