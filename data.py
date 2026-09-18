@@ -6,31 +6,31 @@ data.py - Константи та функції для розрахунку з�
 # Повний масив радіусів ураження та руйнувань (в кілометрах)
 RADII_DATA = {
     0.5: {
-        "destruction": {"severe": 0.29, "moderate": 0.59, "light": 1.73},
+        "destruction": {"severe": 0.34, "moderate": 0.9, "light": 1.73},
         "trauma": {"severe": 0.22, "moderate": 0.32, "light": 0.55},
         "burns": {"degree_3": 0.29, "degree_2": 0.36, "degree_1": 0.51},
         "radiation": {"degree_4": 0.70, "degree_3": 0.79, "degree_2": 0.89, "degree_1": 1.00},
     },
     1.0: {
-        "destruction": {"severe": 0.37, "moderate": 0.74, "light": 2.18},
+        "destruction": {"severe": 0.42, "moderate": 1.14, "light": 2.18},
         "trauma": {"severe": 0.27, "moderate": 0.40, "light": 0.69},
         "burns": {"degree_3": 0.41, "degree_2": 0.50, "degree_1": 0.71},
         "radiation": {"degree_4": 0.89, "degree_3": 0.94, "degree_2": 1.00, "degree_1": 1.12},
     },
     10.0: {
-        "destruction": {"severe": 0.80, "moderate": 1.60, "light": 4.70},
+        "destruction": {"severe": 0.91, "moderate": 2.46, "light": 4.70},
         "trauma": {"severe": 0.59, "moderate": 0.86, "light": 1.49},
         "burns": {"degree_3": 1.20, "degree_2": 1.50, "degree_1": 2.10},
         "radiation": {"degree_4": 1.27, "degree_3": 1.33, "degree_2": 1.41, "degree_1": 1.55},
     },
     50.0: {
-        "destruction": {"severe": 1.37, "moderate": 2.74, "light": 8.04},
+        "destruction": {"severe": 1.56, "moderate": 4.2, "light": 8.04},
         "trauma": {"severe": 1.00, "moderate": 1.46, "light": 2.54},
         "burns": {"degree_3": 2.50, "degree_2": 3.10, "degree_1": 4.30},
         "radiation": {"degree_4": 1.61, "degree_3": 1.64, "degree_2": 1.80, "degree_1": 1.96},
     },
     100.0: {
-        "destruction": {"severe": 1.72, "moderate": 3.45, "light": 10.13},
+        "destruction": {"severe": 1.97, "moderate": 5.29, "light": 10.13},
         "trauma": {"severe": 1.27, "moderate": 1.84, "light": 3.20},
         "burns": {"degree_3": 3.50, "degree_2": 4.20, "degree_1": 5.80},
         "radiation": {"degree_4": 1.69, "degree_3": 1.83, "degree_2": 1.99, "degree_1": 2.16},
@@ -42,12 +42,12 @@ DESTRUCTION_ZONES_10KT = {
     "severe": {
         "name_ua": "Зона значних руйнувань (44.8 кПа)",
         "overpressure_kpa": 44.8,
-        "r10_km": 0.80,
+        "r10_km": 0.91,
     },
     "moderate": {
         "name_ua": "Зона середніх руйнувань (10.3 кПа)",
         "overpressure_kpa": 10.3,
-        "r10_km": 1.60,
+        "r10_km": 2.46,
     },
     "light": {
         "name_ua": "Зона слабких руйнувань (3.45 кПа)",
