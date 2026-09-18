@@ -254,10 +254,13 @@ with col_right:
         r_b_3, r_b_2, r_b_1 = data["burns"]["degree_3"], data["burns"]["degree_2"], data["burns"]["degree_1"]
         r_r_4, r_r_3, r_r_2, r_r_1 = data["radiation"]["degree_4"], data["radiation"]["degree_3"], data["radiation"]["degree_2"], data["radiation"]["degree_1"]
 
-        # 4. Обчислення площ зон руйнувань
-        s_dest_sev = math.pi * (r_dest_sev ** 2)
-        s_dest_mod = math.pi * (r_dest_mod ** 2)
-        s_dest_lit = math.pi * (r_dest_lit ** 2)
+        # 4. Обчислення площ зон руйнувань як окремих кілець
+        s_dest_sev = math.pi * (r_dest_sev ** 2)                                 # Сильні (круг)
+        s_dest_mod = math.pi * max(0.0, (r_dest_mod ** 2) - (r_dest_sev ** 2))   # Помірні (кільце)
+        s_dest_lit = math.pi * max(0.0, (r_dest_lit ** 2) - (r_dest_mod ** 2))   # Слабкі (кільце)
+
+        # Загальна площа зони руйнувань (сума окремих зон)
+        s_dest_total = s_dest_sev + s_dest_mod + s_dest_lit
 
         # 5. Обчислення площ зон травмування як окремих кілець
         s_tr_sev = math.pi * (r_tr_sev ** 2)                                # Важкі (круг)
@@ -358,10 +361,10 @@ with col_right:
         with res_col2:
             html_radii = f"""<div class="results-card">
 <div class="res-main-title">РАДІУСИ ТА ПЛОЩА ЗОН УРАЖЕННЯ ЯДЕРНОГО ВИБУХУ</div>
-<div class="res-section-title">Параметри зон руйнувань:</div>
+<div class="res-section-title">Параметри зон руйнувань (окремі кільця):</div>
 <div class="res-cat-1 color-sev">• R зони значних руйнувань (Р=44,8 кПа) — <span class="val-white">{fmt_float(r_dest_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_sev)} кв.км</span>)</div>
-<div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
-<div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
+<div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
+<div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
 
 <div class="res-section-title">Параметри зон травмування (окремі кільця):</div>
 <div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
