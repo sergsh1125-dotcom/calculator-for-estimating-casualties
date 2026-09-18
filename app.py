@@ -182,12 +182,12 @@ with col_right:
         unsafe_allow_html=True
     )
 
-    # Налаштування стилів зон на карті (для опіків та радіації fill встановлено в False)
+    # Налаштування стилів зон на карті (травмування, опіки та радіація — без заливки)
     MAP_ZONE_STYLES = [
         {"cat": "destruction", "sub": "severe",   "name": "Зона значних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill": True,  "fill_opacity": 0.40},
         {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill": True,  "fill_opacity": 0.35},
         {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",       "color": "#FFD700", "fill": True,  "fill_opacity": 0.25},
-        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (радіус легких травм)",  "color": "#1E90FF", "fill": True,  "fill_opacity": 0.25},
+        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (радіус легких травм)",  "color": "#1E90FF", "fill": False, "fill_opacity": 0.00},
         {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I ступеня)",           "color": "#A52A2A", "fill": False, "fill_opacity": 0.00},
         {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
