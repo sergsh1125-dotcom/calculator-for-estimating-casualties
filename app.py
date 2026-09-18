@@ -111,7 +111,7 @@ st.markdown("""
 if "calculated" not in st.session_state:
     st.session_state.calculated = False
 
-# ДВОКОЛОНКОВИЙ МАКЕТ ГОЛОВНОЇ СТОРІНКИ
+# ДВОКОЛОНКОВИЙ МАКЕТ GOЛОВНОЇ СТОРІНКИ
 col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
 # --- ЛІВА ПАНЕЛЬ: ВХІДНІ ДАНІ ---
@@ -164,7 +164,6 @@ if btn_calc:
 with col_right:
     data = RADII_DATA[yield_val]
     
-    # Радіус ГПХ I ступеня є максимальним радіусом променевого ураження
     r_rad_max = data["radiation"]["degree_1"]
     
     max_radius = max(
@@ -228,10 +227,11 @@ with col_right:
             popup=f"<b>{zone['name']}</b><br>Радіус: {zone['radius_km']:.2f} км"
         ).add_to(m)
 
+    # Темний маркер епіцентру (для контрасту з червоним колом)
     folium.Marker(
         [lat_val, lon_val],
         popup="<b>Епіцентр вибуху</b>",
-        icon=folium.Icon(color="red", icon="warning-sign")
+        icon=folium.Icon(color="black", icon="warning-sign")
     ).add_to(m)
 
     folium.LayerControl(position='topright').add_to(m)
@@ -265,7 +265,7 @@ with col_right:
         s_tr_sev = math.pi * (r_tr_sev ** 2)
 
         s_b_1 = math.pi * (r_b_1 ** 2)
-        s_r_1 = math.pi * (r_r_1 ** 2)  # Площа зони ГПХ I ст. (включає I, II, III ст.)
+        s_r_1 = math.pi * (r_r_1 ** 2)
 
         # Інтегрування населення та втрат
         all_radii = sorted(list(set([
@@ -281,11 +281,7 @@ with col_right:
         pop_dest_lit = 0.0
 
         total_casualties = 0.0
-        cas_dest_sev = 0.0
-        cas_dest_mod = 0.0
-        cas_dest_lit = 0.0
 
-        comb_total = 0.0
         has_trauma_total = 0.0
         has_burns_total = 0.0
         has_rad_total = 0.0
@@ -304,7 +300,7 @@ with col_right:
 
             has_tr = r_mid <= r_tr_lit
             has_b = r_mid <= r_b_1
-            has_r = r_mid <= r_r_1  # Межа ураження радіацією (ГПХ I-III ст.)
+            has_r = r_mid <= r_r_1
 
             if in_any_dest or has_tr or has_b or has_r:
                 pop_all_zones += pop
@@ -320,17 +316,6 @@ with col_right:
             if is_casualty:
                 total_casualties += pop
 
-                if in_dest_sev:
-                    cas_dest_sev += pop
-                elif in_dest_mod:
-                    cas_dest_mod += pop
-                elif in_dest_lit:
-                    cas_dest_lit += pop
-
-                factors_count = sum([has_tr, has_b, has_r])
-                if factors_count >= 2:
-                    comb_total += pop
-
                 if has_tr:
                     has_trauma_total += pop
                 if has_b:
@@ -339,7 +324,6 @@ with col_right:
                     has_rad_total += pop
 
         pop_dest_total = pop_dest_sev + pop_dest_mod + pop_dest_lit
-        cas_dest_total = cas_dest_sev + cas_dest_mod + cas_dest_lit
 
         def fmt_int(val: float) -> str:
             return f"{int(round(val)):,}".replace(",", " ")
@@ -358,18 +342,13 @@ with col_right:
 <div class="res-cat-2 color-sev">- зона сильних руйнувань: <span class="val-white">{fmt_int(pop_dest_sev)} осіб</span></div>
 <div class="res-cat-2 color-mod">- зона помірних руйнувань: <span class="val-white">{fmt_int(pop_dest_mod)} осіб</span></div>
 <div class="res-cat-2 color-lit">- зона слабких руйнувань: <span class="val-white">{fmt_int(pop_dest_lit)} осіб</span></div>
+
 <div class="res-section-title">2. Кількість постраждалих:</div>
-<div class="res-cat-1">• ВСЬОГО (у всіх зонах разом): <span class="val-white">{fmt_int(total_casualties)} осіб</span></div>
-<div class="res-cat-1">• У зонах руйнування ОКРЕМО: <span class="val-white">{fmt_int(cas_dest_total)} осіб</span></div>
-<div class="res-cat-2 color-sev">- у зоні сильних руйнувань: <span class="val-white">{fmt_int(cas_dest_sev)} осіб</span></div>
-<div class="res-cat-2 color-mod">- у зоні помірних руйнувань: <span class="val-white">{fmt_int(cas_dest_mod)} осіб</span></div>
-<div class="res-cat-2 color-lit">- у зоні слабких руйнувань: <span class="val-white">{fmt_int(cas_dest_lit)} осіб</span></div>
-<div class="res-section-title">3. У ТОМУ ЧИСЛІ ПОСТРАЖДАЛИХ:</div>
-<div class="res-cat-1">• з комбінованими ураженнями: <span class="val-white">{fmt_int(comb_total)} осіб</span></div>
-<div class="res-cat-1">• у тому числі із всіх постраждалих мають:</div>
-<div class="res-cat-2 color-tr">- травми (разом легкі, середні та важкі): <span class="val-white">{fmt_int(has_trauma_total)} осіб</span></div>
-<div class="res-cat-2 color-b">- опіки (всіх ступенів разом): <span class="val-white">{fmt_int(has_burns_total)} осіб</span></div>
-<div class="res-cat-2 color-r">- променева хвороба (всіх ступенів разом): <span class="val-white">{fmt_int(has_rad_total)} осіб</span></div>
+<div class="res-cat-1">• ВСЬОГО: <span class="val-white">{fmt_int(total_casualties)} осіб</span></div>
+<div class="res-cat-1">• У ТОМУ ЧИСЛІ:</div>
+<div class="res-cat-2 color-tr">- з травмами (разом легкі, середні та важкі): <span class="val-white">{fmt_int(has_trauma_total)} осіб</span></div>
+<div class="res-cat-2 color-b">- з опіками (всіх ступенів разом): <span class="val-white">{fmt_int(has_burns_total)} осіб</span></div>
+<div class="res-cat-2 color-r">- з гострою променевою хворобою (всіх ступенів разом): <span class="val-white">{fmt_int(has_rad_total)} осіб</span></div>
 </div>"""
             st.markdown(html_losses, unsafe_allow_html=True)
 
