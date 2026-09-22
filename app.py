@@ -138,7 +138,7 @@ with col_left:
     
     st.markdown('<div class="sec-header">Населення</div>', unsafe_allow_html=True)
     density_val = st.number_input(
-        "Щільність населення в районі ядерного вибуху (тис. осіб/кв. км):",
+        "Щільність населення в зонах руйнування (тис. осіб/кв. км):",
         min_value=0.1,
         max_value=100.0,
         value=4.0,
@@ -187,9 +187,9 @@ with col_right:
         {"cat": "destruction", "sub": "severe",   "name": "Зона значних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill": True,  "fill_opacity": 0.40},
         {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill": True,  "fill_opacity": 0.35},
         {"cat": "destruction", "sub": "light",    "name": "Зона слабких руйнувань (3.45 кПа)",       "color": "#FFD700", "fill": True,  "fill_opacity": 0.25},
-        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (радіус легких травм)",  "color": "#1E90FF", "fill": False, "fill_opacity": 0.00},
-        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I ступеня)",           "color": "#A52A2A", "fill": False, "fill_opacity": 0.00},
-        {"cat": "radiation",   "sub": "degree_1", "name": "Зона променевої хвороби (ГПХ I ст.)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
+        {"cat": "trauma",      "sub": "light",    "name": "Зона травмування (легкі, середні та важкі травми)",  "color": "#1E90FF", "fill": False, "fill_opacity": 0.00},
+        {"cat": "burns",       "sub": "degree_1", "name": "Зона опіків (опіки I-ІІІ ступенів)",           "color": "#A52A2A", "fill": False, "fill_opacity": 0.00},
+        {"cat": "radiation",   "sub": "degree_1", "name": "Зона гострої променевої хвороби (ГПХ I-IV ступенів)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
 
     m = folium.Map(location=[lat_val, lon_val], zoom_start=11, tiles=None)
@@ -354,7 +354,7 @@ with col_right:
         with res_col1:
             html_losses = f"""<div class="results-card">
 <div class="res-main-title">РОЗРАХУНКОВІ ДАНІ ВТРАТ НАСЕЛЕННЯ</div>
-<div class="res-section-title">1. Кількість людей, яка опинилася у зонах руйнування:</div>
+<div class="res-section-title">1. Кількість людей, які опинилися у зонах руйнування:</div>
 <div class="res-cat-1">• ВСЬОГО: <span class="val-white">{fmt_int(pop_all_zones)} осіб</span></div>
 <div class="res-cat-1">• У ТОМУ ЧИСЛІ:</div>
 <div class="res-cat-2 color-sev">- зона значних руйнувань: <span class="val-white">{fmt_int(pop_dest_sev)} осіб</span></div>
@@ -388,17 +388,17 @@ with col_right:
         with res_col2:
             html_radii = f"""<div class="results-card">
 <div class="res-main-title">РАДІУСИ ТА ПЛОЩА ЗОН УРАЖЕННЯ ЯДЕРНОГО ВИБУХУ</div>
-<div class="res-section-title">Параметри зон руйнувань:</div>
+<div class="res-section-title">Радіуси та площа зон руйнувань:</div>
 <div class="res-cat-1 color-sev">• R зони значних руйнувань (Р=44,8 кПа) — <span class="val-white">{fmt_float(r_dest_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_dest_sev)} кв.км</span>)</div>
 <div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
 
-<div class="res-section-title">Радіуси зони травмування від дії ударної хвилі та надмірного тиску:</div>
+<div class="res-section-title">Радіуси та плаща зони травмування від дії ударної хвилі та надмірного тиску:</div>
 <div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
 <div class="res-cat-1 color-tr">• R зони травмування (середнє) (Р=50 кПа) — <span class="val-white">{fmt_float(r_tr_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-tr">• R зони травмування (важке) (Р=100 кПа) — <span class="val-white">{fmt_float(r_tr_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_sev)} кв.км</span>)</div>
 
-<div class="res-section-title">Радіуси зон ураження від світлового та іонізуючого випромінювання:</div>
+<div class="res-section-title">Радіуси та площа зон ураження від світлового та іонізуючого випромінювання:</div>
 <div class="res-cat-1 color-b">• R зони опіків шкіри без захисту (I-ІІІ ступенів) — <span class="val-white">{fmt_float(r_b_1)} км</span> (площа — <span class="val-white">{fmt_float(s_b_1)} кв.км</span>)</div>
 <div class="res-cat-1 color-r">• R зони гострої променевої хвороби (І-ІII ступенів) — <span class="val-white">{fmt_float(r_r_1)} км</span> (площа — <span class="val-white">{fmt_float(s_r_1)} кв.км</span>)</div>
 </div>"""
