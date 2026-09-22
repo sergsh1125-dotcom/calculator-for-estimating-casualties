@@ -116,7 +116,7 @@ col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
 # --- ЛІВА ПАНЕЛЬ: ВХІДНІ ДАНІ ---
 with col_left:
-    st.markdown('<div class="app-title">Прогнозування втрат населення під час ядерного вибуху</div>', unsafe_allow_html=True)
+    st.markdown('<div class="app-title">Прогнозування втрат населення під час наземного ядерного вибуху</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="sec-header">Вихідні дані</div>', unsafe_allow_html=True)
     yield_val = st.selectbox(
@@ -400,6 +400,6 @@ with col_right:
 
 <div class="res-section-title">Радіуси та площа зон ураження від світлового та іонізуючого випромінювання:</div>
 <div class="res-cat-1 color-b">• R зони опіків шкіри без захисту (I-ІІІ ступенів) — <span class="val-white">{fmt_float(r_b_1)} км</span> (площа — <span class="val-white">{fmt_float(s_b_1)} кв.км</span>)</div>
-<div class="res-cat-1 color-r">• R зони гострої променевої хвороби (І-ІII ступенів) — <span class="val-white">{fmt_float(r_r_1)} км</span> (площа — <span class="val-white">{fmt_float(s_r_1)} кв.км</span>)</div>
+<div class="res-cat-1 color-r">• R зони гострої променевої хвороби (І-ІV ступенів) — <span class="val-white">{fmt_float(r_r_1)} км</span> (площа — <span class="val-white">{fmt_float(s_r_1)} кв.км</span>)</div>
 </div>"""
             st.markdown(html_radii, unsafe_allow_html=True)
