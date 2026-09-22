@@ -393,7 +393,7 @@ with col_right:
 <div class="res-cat-1 color-mod">• R зони помірних руйнувань (Р=10,3 кПа) — <span class="val-white">{fmt_float(r_dest_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-lit">• R зони слабких руйнувань (Р=3,45 кПа) — <span class="val-white">{fmt_float(r_dest_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_dest_lit)} кв.км</span>)</div>
 
-<div class="res-section-title">Радіуси та плаща зони травмування від дії ударної хвилі та надмірного тиску:</div>
+<div class="res-section-title">Радіуси та площа зони травмування від дії ударної хвилі та надмірного тиску:</div>
 <div class="res-cat-1 color-tr">• R зони травмування (легке) (Р=20 кПа) — <span class="val-white">{fmt_float(r_tr_lit)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_lit)} кв.км</span>)</div>
 <div class="res-cat-1 color-tr">• R зони травмування (середнє) (Р=50 кПа) — <span class="val-white">{fmt_float(r_tr_mod)} км</span> (площа кільця — <span class="val-white">{fmt_float(s_tr_mod)} кв.км</span>)</div>
 <div class="res-cat-1 color-tr">• R зони травмування (важке) (Р=100 кПа) — <span class="val-white">{fmt_float(r_tr_sev)} км</span> (площа — <span class="val-white">{fmt_float(s_tr_sev)} кв.км</span>)</div>
