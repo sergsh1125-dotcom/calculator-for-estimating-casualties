@@ -6,7 +6,7 @@ from data import RADII_DATA
 
 # 1. Конфігурація сторінки
 st.set_page_config(
-    page_title="Прогнозування втрат населення під час ядерного вибуху",
+    page_title="Прогнозування втрат населення під час наземного ядерного вибуху",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
