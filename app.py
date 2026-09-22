@@ -248,9 +248,9 @@ with col_right:
         r_dest_lit = data["destruction"]["light"]
 
         # 2. Радіуси травм
-        r_tr_sev = data["trauma"]["severe"]      # P >= 100 кПа
-        r_tr_mod = data["trauma"]["moderate"]    # P >= 50 кПа
-        r_tr_lit = data["trauma"]["light"]       # P >= 20 кПа
+        r_tr_sev = data["trauma"]["severe"]      # P >= 100 кПа (важкі)
+        r_tr_mod = data["trauma"]["moderate"]    # P >= 50 кПа (середні)
+        r_tr_lit = data["trauma"]["light"]       # P >= 20 кПа (легкі)
 
         # 3. Радіуси опіків та радіації
         r_b_3, r_b_2, r_b_1 = data["burns"]["degree_3"], data["burns"]["degree_2"], data["burns"]["degree_1"]
@@ -261,25 +261,45 @@ with col_right:
         s_dest_mod = math.pi * max(0.0, (r_dest_mod ** 2) - (r_dest_sev ** 2))   # Помірні (кільце)
         s_dest_lit = math.pi * max(0.0, (r_dest_lit ** 2) - (r_dest_mod ** 2))   # Слабкі (кільце)
 
-        # Загальна площа зони руйнувань (сума окремих зон)
         s_dest_total = s_dest_sev + s_dest_mod + s_dest_lit
 
-        # 5. Обчислення площ зон травмування як окремих кілець
+        # 5. Обчислення площ зон травмування за ступенями
         s_tr_sev = math.pi * (r_tr_sev ** 2)                                # Важкі (круг)
         s_tr_mod = math.pi * max(0.0, (r_tr_mod ** 2) - (r_tr_sev ** 2))    # Середні (кільце)
         s_tr_lit = math.pi * max(0.0, (r_tr_lit ** 2) - (r_tr_mod ** 2))    # Легкі (кільце)
-
-        # Сумарна площа ураження травмами (легкі + середні + важкі)
         s_tr_total = s_tr_sev + s_tr_mod + s_tr_lit
 
-        # 6. Площі опіків та радіації
-        s_b_1 = math.pi * (r_b_1 ** 2)
-        s_r_1 = math.pi * (r_r_1 ** 2)
+        # 6. Обчислення площ зон опіків за ступенями
+        s_b_3 = math.pi * (r_b_3 ** 2)                                      # ІІІ ступінь (круг)
+        s_b_2 = math.pi * max(0.0, (r_b_2 ** 2) - (r_b_3 ** 2))            # ІІ ступінь (кільце)
+        s_b_1_ring = math.pi * max(0.0, (r_b_1 ** 2) - (r_b_2 ** 2))       # І ступінь (кільце)
+        s_b_1 = math.pi * (r_b_1 ** 2)                                      # Всі ступені разом
 
-        # 7. Розрахунок кількості постраждалих з травмами за сумою площ
+        # 7. Обчислення площ зон ГПХ за ступенями
+        s_r_4 = math.pi * (r_r_4 ** 2)                                      # IV ступінь (круг)
+        s_r_3 = math.pi * max(0.0, (r_r_3 ** 2) - (r_r_4 ** 2))            # ІІІ ступінь (кільце)
+        s_r_2 = math.pi * max(0.0, (r_r_2 ** 2) - (r_r_3 ** 2))            # ІІ ступінь (кільце)
+        s_r_1_ring = math.pi * max(0.0, (r_r_1 ** 2) - (r_r_2 ** 2))       # І ступінь (кільце)
+        s_r_1 = math.pi * (r_r_1 ** 2)                                      # Всі ступені разом
+
+        # 8. Розрахунок кількості постраждалих за ступенями
+        has_trauma_sev = s_tr_sev * density_ppl
+        has_trauma_mod = s_tr_mod * density_ppl
+        has_trauma_lit = s_tr_lit * density_ppl
         has_trauma_total = s_tr_total * density_ppl
 
-        # Інтегрування населення для інших факторів
+        has_burns_3 = s_b_3 * density_ppl
+        has_burns_2 = s_b_2 * density_ppl
+        has_burns_1 = s_b_1_ring * density_ppl
+        has_burns_total = s_b_1 * density_ppl
+
+        has_rad_4 = s_r_4 * density_ppl
+        has_rad_3 = s_r_3 * density_ppl
+        has_rad_2 = s_r_2 * density_ppl
+        has_rad_1 = s_r_1_ring * density_ppl
+        has_rad_total = s_r_1 * density_ppl
+
+        # Інтегрування населення для виключення повторного рахунку
         all_radii = sorted(list(set([
             0.0, r_dest_sev, r_dest_mod, r_dest_lit,
             r_tr_sev, r_tr_mod, r_tr_lit,
@@ -291,10 +311,7 @@ with col_right:
         pop_dest_sev = 0.0
         pop_dest_mod = 0.0
         pop_dest_lit = 0.0
-
         total_casualties = 0.0
-        has_burns_total = 0.0
-        has_rad_total = 0.0
 
         for i in range(len(all_radii) - 1):
             r_in, r_out = all_radii[i], all_radii[i+1]
@@ -326,13 +343,6 @@ with col_right:
             if is_casualty:
                 total_casualties += pop
 
-                if has_b:
-                    has_burns_total += pop
-                if has_r:
-                    has_rad_total += pop
-
-        pop_dest_total = pop_dest_sev + pop_dest_mod + pop_dest_lit
-
         def fmt_int(val: float) -> str:
             return f"{int(round(val)):,}".replace(",", " ")
 
@@ -355,8 +365,23 @@ with col_right:
 <div class="res-cat-1">• ВСЬОГО: <span class="val-white">{fmt_int(total_casualties)} осіб</span></div>
 <div class="res-cat-1">• У ТОМУ ЧИСЛІ:</div>
 <div class="res-cat-2 color-tr">- з травмами (разом легкі, середні та важкі): <span class="val-white">{fmt_int(has_trauma_total)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 40px; color: #E0E0E0;">у тому числі:</div>
+<div class="res-cat-2" style="margin-left: 56px;">- легкого ступеню — <span class="val-white">{fmt_int(has_trauma_lit)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- середнього ступеню — <span class="val-white">{fmt_int(has_trauma_mod)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- важкого ступеню — <span class="val-white">{fmt_int(has_trauma_sev)} осіб</span></div>
+
 <div class="res-cat-2 color-b">- з опіками (всіх ступенів разом): <span class="val-white">{fmt_int(has_burns_total)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 40px; color: #E0E0E0;">у тому числі:</div>
+<div class="res-cat-2" style="margin-left: 56px;">- І ступеня — <span class="val-white">{fmt_int(has_burns_1)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- ІІ ступеня — <span class="val-white">{fmt_int(has_burns_2)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- ІІІ ступеня — <span class="val-white">{fmt_int(has_burns_3)} осіб</span></div>
+
 <div class="res-cat-2 color-r">- з гострою променевою хворобою (всіх ступенів разом): <span class="val-white">{fmt_int(has_rad_total)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 40px; color: #E0E0E0;">у тому числі:</div>
+<div class="res-cat-2" style="margin-left: 56px;">- І ступеня — <span class="val-white">{fmt_int(has_rad_1)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- ІІ ступеня — <span class="val-white">{fmt_int(has_rad_2)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- ІІІ ступеня — <span class="val-white">{fmt_int(has_rad_3)} осіб</span></div>
+<div class="res-cat-2" style="margin-left: 56px;">- IV ступеня — <span class="val-white">{fmt_int(has_rad_4)} осіб</span></div>
 </div>"""
             st.markdown(html_losses, unsafe_allow_html=True)
 
