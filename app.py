@@ -370,7 +370,7 @@ with col_right:
 <div class="res-cat-2" style="margin-left: 56px;">- середнього ступеню — <span class="val-white">{fmt_int(has_trauma_mod)} осіб</span></div>
 <div class="res-cat-2" style="margin-left: 56px;">- важкого ступеню — <span class="val-white">{fmt_int(has_trauma_sev)} осіб</span></div>
 
-<div class="res-cat-2 color-b">- з опіками (всіх ступенів разом): <span class="val-white">{fmt_int(has_burns_total)} осіб</span></div>
+<div class="res-cat-2 color-b">- з опіками шкіри без захисту (всіх ступенів разом): <span class="val-white">{fmt_int(has_burns_total)} осіб</span></div>
 <div class="res-cat-2" style="margin-left: 40px; color: #E0E0E0;">у тому числі:</div>
 <div class="res-cat-2" style="margin-left: 56px;">- І ступеня — <span class="val-white">{fmt_int(has_burns_1)} осіб</span></div>
 <div class="res-cat-2" style="margin-left: 56px;">- ІІ ступеня — <span class="val-white">{fmt_int(has_burns_2)} осіб</span></div>
