@@ -6,7 +6,7 @@ from data import RADII_DATA
 
 # 1. Конфігурація сторінки
 st.set_page_config(
-    page_title="Прогнозування втрат населення під час наземного ядерного вибуху",
+    page_title="Прогнозування кількості постраждалих під час наземного ядерного вибуху",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -116,7 +116,7 @@ col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
 # --- ЛІВА ПАНЕЛЬ: ВХІДНІ ДАНІ ---
 with col_left:
-    st.markdown('<div class="app-title">Прогнозування втрат населення під час наземного ядерного вибуху</div>', unsafe_allow_html=True)
+    st.markdown('<div class="app-title">Прогнозування кількості постраждалих під час наземного ядерного вибуху</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="sec-header">Вихідні дані</div>', unsafe_allow_html=True)
     yield_val = st.selectbox(
