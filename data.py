@@ -47,6 +47,18 @@ RADII_DATA = {
         "burns": {"degree_3": 1.20, "degree_2": 1.50, "degree_1": 2.10},
         "radiation": {"degree_4": 1.27, "degree_3": 1.33, "degree_2": 1.41, "degree_1": 1.55},
     },
+    20.0: {
+        "destruction": {"severe": 1.16, "moderate": 3.09, "light": 5.92},
+        "trauma": {"severe": 0.74, "moderate": 1.08, "light": 1.87},
+        "burns": {"degree_3": 1.7, "degree_2": 2.00, "degree_1": 2.8},
+        "radiation": {"degree_4": 1.3, "degree_3": 1.42, "degree_2": 1.56, "degree_1": 1.72},
+    },
+    30.0: {
+        "destruction": {"severe": 1.32, "moderate": 3.54, "light": 6.77},
+        "trauma": {"severe": 0.85, "moderate": 1.23, "light": 2.14},
+        "burns": {"degree_3": 2.00, "degree_2": 2.4, "degree_1": 3.4},
+        "radiation": {"degree_4": 1.39, "degree_3": 1.51, "degree_2": 1.66, "degree_1": 1.82},
+    },
     50.0: {
         "destruction": {"severe": 1.56, "moderate": 4.2, "light": 8.04},
         "trauma": {"severe": 1.00, "moderate": 1.46, "light": 2.54},
