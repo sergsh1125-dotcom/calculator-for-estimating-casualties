@@ -5,6 +5,12 @@ data.py - Константи та функції для розрахунку з�
 
 # Повний масив радіусів ураження та руйнувань (в кілометрах)
 RADII_DATA = {
+    0.1: {
+        "destruction": {"severe": 0.2, "moderate": 0.53, "light": 1.01},
+        "trauma": {"severe": 0.13, "moderate": 0.18, "light": 0.32},
+        "burns": {"degree_3": 0.14, "degree_2": 0.17, "degree_1": 0.24},
+        "radiation": {"degree_4": 0.49, "degree_3": 0.57, "degree_2": 0.66, "degree_1": 0.75},
+    },
     0.5: {
         "destruction": {"severe": 0.34, "moderate": 0.9, "light": 1.73},
         "trauma": {"severe": 0.22, "moderate": 0.32, "light": 0.55},
