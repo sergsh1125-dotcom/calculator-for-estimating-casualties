@@ -108,13 +108,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. Ініціалізація стану сесії (Session State)
 if "calculated" not in st.session_state:
     st.session_state.calculated = False
-if "lat" not in st.session_state:
-    st.session_state.lat = 50.4501
-if "lon" not in st.session_state:
-    st.session_state.lon = 30.5234
 
 # ДВОКОЛОНКОВИЙ МАКЕТ ГОЛОВНОЇ СТОРІНКИ
 col_left, col_right = st.columns([1.1, 2.0], gap="medium")
@@ -135,13 +130,9 @@ with col_left:
     st.markdown('<div class="sec-header">Координати епіцентру ядерного вибуху</div>', unsafe_allow_html=True)
     col_lat, col_lon = st.columns(2)
     with col_lat:
-        lat_val = st.number_input("Широта (Lat):", value=st.session_state.lat, format="%.4f", key="input_lat")
+        lat_val = st.number_input("Широта (Lat):", value=50.4501, format="%.4f")
     with col_lon:
-        lon_val = st.number_input("Довгота (Lon):", value=st.session_state.lon, format="%.4f", key="input_lon")
-    
-    # Синхронізація координат із session_state
-    st.session_state.lat = lat_val
-    st.session_state.lon = lon_val
+        lon_val = st.number_input("Довгота (Lon):", value=30.5234, format="%.4f")
         
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
@@ -158,14 +149,16 @@ with col_left:
     
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
-        if st.button("РОЗРАХУВАТИ"):
-            st.session_state.calculated = True
+        btn_calc = st.button("РОЗРАХУВАТИ")
     with btn_col2:
-        if st.button("ОЧИСТИТИ"):
-            st.session_state.calculated = False
-            st.session_state.lat = 50.4501
-            st.session_state.lon = 30.5234
-            st.rerun()
+        btn_clear = st.button("ОЧИСТИТИ")
+
+if btn_clear:
+    st.session_state.calculated = False
+    st.rerun()
+
+if btn_calc:
+    st.session_state.calculated = True
 
 # --- ПРАВА ПАНЕЛЬ: КАРТА ТА РЕЗУЛЬТАТИ ---
 with col_right:
@@ -189,7 +182,7 @@ with col_right:
         unsafe_allow_html=True
     )
 
-    # Налаштування стилів зон на карті
+    # Налаштування стилів зон на карті (травмування, опіки та радіація — без заливки)
     MAP_ZONE_STYLES = [
         {"cat": "destruction", "sub": "severe",   "name": "Зона значних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill": True,  "fill_opacity": 0.40},
         {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill": True,  "fill_opacity": 0.35},
@@ -199,8 +192,7 @@ with col_right:
         {"cat": "radiation",   "sub": "degree_1", "name": "Зона гострої променевої хвороби (ГПХ I-IV ступенів)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
 
-    # Створення карти з акцентом на поточні координати
-    m = folium.Map(location=[st.session_state.lat, st.session_state.lon], zoom_start=11, tiles=None)
+    m = folium.Map(location=[lat_val, lon_val], zoom_start=11, tiles=None)
     
     folium.TileLayer('openstreetmap', name='OpenStreetMap').add_to(m)
     folium.TileLayer(
@@ -227,7 +219,7 @@ with col_right:
 
     for zone in zones_to_draw:
         folium.Circle(
-            location=[st.session_state.lat, st.session_state.lon],
+            location=[lat_val, lon_val],
             radius=zone["radius_m"],
             color=zone["color"],
             fill=zone["fill"],
@@ -238,24 +230,13 @@ with col_right:
         ).add_to(m)
 
     folium.Marker(
-        [st.session_state.lat, st.session_state.lon],
+        [lat_val, lon_val],
         popup="<b>Епіцентр вибуху</b>",
         icon=folium.Icon(color="black", icon="warning-sign")
     ).add_to(m)
 
     folium.LayerControl(position='topright').add_to(m)
-    
-    # Відображення карти Folium
-    map_data = st_folium(m, width=None, height=440, use_container_width=True, key="folium_map")
-
-    # Зчитування кліку по карті для оновлення координат
-    if map_data and map_data.get("last_clicked"):
-        click_lat = map_data["last_clicked"]["lat"]
-        click_lon = map_data["last_clicked"]["lng"]
-        if abs(click_lat - st.session_state.lat) > 0.0001 or abs(click_lon - st.session_state.lon) > 0.0001:
-            st.session_state.lat = round(click_lat, 4)
-            st.session_state.lon = round(click_lon, 4)
-            st.rerun()
+    st_folium(m, width=None, height=440, use_container_width=True)
 
     # --- ВИВІД РЕЗУЛЬТАТІВ У ДВІ КОЛОНКИ ПІД КАРТОЮ ---
     if st.session_state.calculated:
@@ -290,14 +271,14 @@ with col_right:
 
         # 6. Обчислення площ зон опіків за ступенями
         s_b_3 = math.pi * (r_b_3 ** 2)                                      # ІІІ ступінь (круг)
-        s_b_2 = math.pi * max(0.0, (r_b_2 ** 2) - (r_b_3 ** 2))             # ІІ ступінь (кільце)
+        s_b_2 = math.pi * max(0.0, (r_b_2 ** 2) - (r_b_3 ** 2))            # ІІ ступінь (кільце)
         s_b_1_ring = math.pi * max(0.0, (r_b_1 ** 2) - (r_b_2 ** 2))       # І ступінь (кільце)
         s_b_1 = math.pi * (r_b_1 ** 2)                                      # Всі ступені разом
 
         # 7. Обчислення площ зон ГПХ за ступенями
         s_r_4 = math.pi * (r_r_4 ** 2)                                      # IV ступінь (круг)
-        s_r_3 = math.pi * max(0.0, (r_r_3 ** 2) - (r_r_4 ** 2))             # ІІІ ступінь (кільце)
-        s_r_2 = math.pi * max(0.0, (r_r_2 ** 2) - (r_r_3 ** 2))             # ІІ ступінь (кільце)
+        s_r_3 = math.pi * max(0.0, (r_r_3 ** 2) - (r_r_4 ** 2))            # ІІІ ступінь (кільце)
+        s_r_2 = math.pi * max(0.0, (r_r_2 ** 2) - (r_r_3 ** 2))            # ІІ ступінь (кільце)
         s_r_1_ring = math.pi * max(0.0, (r_r_1 ** 2) - (r_r_2 ** 2))       # І ступінь (кільце)
         s_r_1 = math.pi * (r_r_1 ** 2)                                      # Всі ступені разом
 
