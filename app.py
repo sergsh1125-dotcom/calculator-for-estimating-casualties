@@ -11,14 +11,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Ініціалізація стану координат та розрахунку
-if "lat" not in st.session_state:
-    st.session_state.lat = 50.4501
-if "lon" not in st.session_state:
-    st.session_state.lon = 30.5234
-if "calculated" not in st.session_state:
-    st.session_state.calculated = False
-
 # 2. Стилізація інтерфейсу
 st.markdown("""
     <style>
@@ -116,6 +108,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# 3. Ініціалізація стану сесії (Session State)
+if "calculated" not in st.session_state:
+    st.session_state.calculated = False
+if "lat" not in st.session_state:
+    st.session_state.lat = 50.4501
+if "lon" not in st.session_state:
+    st.session_state.lon = 30.5234
+
 # ДВОКОЛОНКОВИЙ МАКЕТ ГОЛОВНОЇ СТОРІНКИ
 col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
@@ -138,14 +138,14 @@ with col_left:
         lat_val = st.number_input("Широта (Lat):", value=st.session_state.lat, format="%.4f", key="input_lat")
     with col_lon:
         lon_val = st.number_input("Довгота (Lon):", value=st.session_state.lon, format="%.4f", key="input_lon")
-        
-    # Синхронізуємо стан з руками введеними координатами
+    
+    # Синхронізація координат із session_state
     st.session_state.lat = lat_val
     st.session_state.lon = lon_val
-
+        
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="sec-header">Населенння</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-header">Населення</div>', unsafe_allow_html=True)
     density_val = st.number_input(
         "Щільність населення в зонах руйнування (тис. осіб/кв. км):",
         min_value=0.1,
@@ -158,18 +158,14 @@ with col_left:
     
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
-        btn_calc = st.button("РОЗРАХУВАТИ")
+        if st.button("РОЗРАХУВАТИ"):
+            st.session_state.calculated = True
     with btn_col2:
-        btn_clear = st.button("ОЧИСТИТИ")
-
-if btn_clear:
-    st.session_state.calculated = False
-    st.session_state.lat = 50.4501
-    st.session_state.lon = 30.5234
-    st.rerun()
-
-if btn_calc:
-    st.session_state.calculated = True
+        if st.button("ОЧИСТИТИ"):
+            st.session_state.calculated = False
+            st.session_state.lat = 50.4501
+            st.session_state.lon = 30.5234
+            st.rerun()
 
 # --- ПРАВА ПАНЕЛЬ: КАРТА ТА РЕЗУЛЬТАТИ ---
 with col_right:
@@ -203,6 +199,7 @@ with col_right:
         {"cat": "radiation",   "sub": "degree_1", "name": "Зона гострої променевої хвороби (ГПХ I-IV ступенів)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
 
+    # Створення карти з акцентом на поточні координати
     m = folium.Map(location=[st.session_state.lat, st.session_state.lon], zoom_start=11, tiles=None)
     
     folium.TileLayer('openstreetmap', name='OpenStreetMap').add_to(m)
@@ -242,33 +239,22 @@ with col_right:
 
     folium.Marker(
         [st.session_state.lat, st.session_state.lon],
-        popup="<b>Епіцентр вибуху (Клікніть по карті для переміщення)</b>",
-        icon=folium.Icon(color="black", icon="warning-sign"),
-        draggable=True
+        popup="<b>Епіцентр вибуху</b>",
+        icon=folium.Icon(color="black", icon="warning-sign")
     ).add_to(m)
 
     folium.LayerControl(position='topright').add_to(m)
+    
+    # Відображення карти Folium
+    map_data = st_folium(m, width=None, height=440, use_container_width=True, key="folium_map")
 
-    # Відображення карти та зчитування дій користувача
-    map_data = st_folium(m, width=None, height=440, use_container_width=True, key="main_map")
-
-    # Обробка переміщення епіцентру мишкою (клік або перетягування маркера)
-    new_lat, new_lon = None, None
-
-    if map_data:
-        # 1. Перетягування маркера
-        if map_data.get("last_marker_dragged"):
-            new_lat = map_data["last_marker_dragged"]["lat"]
-            new_lon = map_data["last_marker_dragged"]["lng"]
-        # 2. Клік по карті
-        elif map_data.get("last_clicked"):
-            new_lat = map_data["last_clicked"]["lat"]
-            new_lon = map_data["last_clicked"]["lng"]
-
-    if new_lat is not None and new_lon is not None:
-        if round(new_lat, 4) != round(st.session_state.lat, 4) or round(new_lon, 4) != round(st.session_state.lon, 4):
-            st.session_state.lat = round(new_lat, 4)
-            st.session_state.lon = round(new_lon, 4)
+    # Зчитування кліку по карті для оновлення координат
+    if map_data and map_data.get("last_clicked"):
+        click_lat = map_data["last_clicked"]["lat"]
+        click_lon = map_data["last_clicked"]["lng"]
+        if abs(click_lat - st.session_state.lat) > 0.0001 or abs(click_lon - st.session_state.lon) > 0.0001:
+            st.session_state.lat = round(click_lat, 4)
+            st.session_state.lon = round(click_lon, 4)
             st.rerun()
 
     # --- ВИВІД РЕЗУЛЬТАТІВ У ДВІ КОЛОНКИ ПІД КАРТОЮ ---
