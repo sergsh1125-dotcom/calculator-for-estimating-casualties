@@ -11,6 +11,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Ініціалізація стану координат та розрахунку
+if "lat" not in st.session_state:
+    st.session_state.lat = 50.4501
+if "lon" not in st.session_state:
+    st.session_state.lon = 30.5234
+if "calculated" not in st.session_state:
+    st.session_state.calculated = False
+
 # 2. Стилізація інтерфейсу
 st.markdown("""
     <style>
@@ -108,9 +116,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-if "calculated" not in st.session_state:
-    st.session_state.calculated = False
-
 # ДВОКОЛОНКОВИЙ МАКЕТ ГОЛОВНОЇ СТОРІНКИ
 col_left, col_right = st.columns([1.1, 2.0], gap="medium")
 
@@ -130,13 +135,17 @@ with col_left:
     st.markdown('<div class="sec-header">Координати епіцентру ядерного вибуху</div>', unsafe_allow_html=True)
     col_lat, col_lon = st.columns(2)
     with col_lat:
-        lat_val = st.number_input("Широта (Lat):", value=50.4501, format="%.4f")
+        lat_val = st.number_input("Широта (Lat):", value=st.session_state.lat, format="%.4f", key="input_lat")
     with col_lon:
-        lon_val = st.number_input("Довгота (Lon):", value=30.5234, format="%.4f")
+        lon_val = st.number_input("Довгота (Lon):", value=st.session_state.lon, format="%.4f", key="input_lon")
         
+    # Синхронізуємо стан з руками введеними координатами
+    st.session_state.lat = lat_val
+    st.session_state.lon = lon_val
+
     st.markdown('<div class="yellow-divider"></div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="sec-header">Населення</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-header">Населенння</div>', unsafe_allow_html=True)
     density_val = st.number_input(
         "Щільність населення в зонах руйнування (тис. осіб/кв. км):",
         min_value=0.1,
@@ -155,6 +164,8 @@ with col_left:
 
 if btn_clear:
     st.session_state.calculated = False
+    st.session_state.lat = 50.4501
+    st.session_state.lon = 30.5234
     st.rerun()
 
 if btn_calc:
@@ -182,7 +193,7 @@ with col_right:
         unsafe_allow_html=True
     )
 
-    # Налаштування стилів зон на карті (травмування, опіки та радіація — без заливки)
+    # Налаштування стилів зон на карті
     MAP_ZONE_STYLES = [
         {"cat": "destruction", "sub": "severe",   "name": "Зона значних руйнувань (44.8 кПа)",       "color": "#FF0000", "fill": True,  "fill_opacity": 0.40},
         {"cat": "destruction", "sub": "moderate", "name": "Зона помірних руйнувань (10.3 кПа)",      "color": "#FF8C00", "fill": True,  "fill_opacity": 0.35},
@@ -192,7 +203,7 @@ with col_right:
         {"cat": "radiation",   "sub": "degree_1", "name": "Зона гострої променевої хвороби (ГПХ I-IV ступенів)",     "color": "#FF69B4", "fill": False, "fill_opacity": 0.00},
     ]
 
-    m = folium.Map(location=[lat_val, lon_val], zoom_start=11, tiles=None)
+    m = folium.Map(location=[st.session_state.lat, st.session_state.lon], zoom_start=11, tiles=None)
     
     folium.TileLayer('openstreetmap', name='OpenStreetMap').add_to(m)
     folium.TileLayer(
@@ -219,7 +230,7 @@ with col_right:
 
     for zone in zones_to_draw:
         folium.Circle(
-            location=[lat_val, lon_val],
+            location=[st.session_state.lat, st.session_state.lon],
             radius=zone["radius_m"],
             color=zone["color"],
             fill=zone["fill"],
@@ -230,13 +241,35 @@ with col_right:
         ).add_to(m)
 
     folium.Marker(
-        [lat_val, lon_val],
-        popup="<b>Епіцентр вибуху</b>",
-        icon=folium.Icon(color="black", icon="warning-sign")
+        [st.session_state.lat, st.session_state.lon],
+        popup="<b>Епіцентр вибуху (Клікніть по карті для переміщення)</b>",
+        icon=folium.Icon(color="black", icon="warning-sign"),
+        draggable=True
     ).add_to(m)
 
     folium.LayerControl(position='topright').add_to(m)
-    st_folium(m, width=None, height=440, use_container_width=True)
+
+    # Відображення карти та зчитування дій користувача
+    map_data = st_folium(m, width=None, height=440, use_container_width=True, key="main_map")
+
+    # Обробка переміщення епіцентру мишкою (клік або перетягування маркера)
+    new_lat, new_lon = None, None
+
+    if map_data:
+        # 1. Перетягування маркера
+        if map_data.get("last_marker_dragged"):
+            new_lat = map_data["last_marker_dragged"]["lat"]
+            new_lon = map_data["last_marker_dragged"]["lng"]
+        # 2. Клік по карті
+        elif map_data.get("last_clicked"):
+            new_lat = map_data["last_clicked"]["lat"]
+            new_lon = map_data["last_clicked"]["lng"]
+
+    if new_lat is not None and new_lon is not None:
+        if round(new_lat, 4) != round(st.session_state.lat, 4) or round(new_lon, 4) != round(st.session_state.lon, 4):
+            st.session_state.lat = round(new_lat, 4)
+            st.session_state.lon = round(new_lon, 4)
+            st.rerun()
 
     # --- ВИВІД РЕЗУЛЬТАТІВ У ДВІ КОЛОНКИ ПІД КАРТОЮ ---
     if st.session_state.calculated:
@@ -271,14 +304,14 @@ with col_right:
 
         # 6. Обчислення площ зон опіків за ступенями
         s_b_3 = math.pi * (r_b_3 ** 2)                                      # ІІІ ступінь (круг)
-        s_b_2 = math.pi * max(0.0, (r_b_2 ** 2) - (r_b_3 ** 2))            # ІІ ступінь (кільце)
+        s_b_2 = math.pi * max(0.0, (r_b_2 ** 2) - (r_b_3 ** 2))             # ІІ ступінь (кільце)
         s_b_1_ring = math.pi * max(0.0, (r_b_1 ** 2) - (r_b_2 ** 2))       # І ступінь (кільце)
         s_b_1 = math.pi * (r_b_1 ** 2)                                      # Всі ступені разом
 
         # 7. Обчислення площ зон ГПХ за ступенями
         s_r_4 = math.pi * (r_r_4 ** 2)                                      # IV ступінь (круг)
-        s_r_3 = math.pi * max(0.0, (r_r_3 ** 2) - (r_r_4 ** 2))            # ІІІ ступінь (кільце)
-        s_r_2 = math.pi * max(0.0, (r_r_2 ** 2) - (r_r_3 ** 2))            # ІІ ступінь (кільце)
+        s_r_3 = math.pi * max(0.0, (r_r_3 ** 2) - (r_r_4 ** 2))             # ІІІ ступінь (кільце)
+        s_r_2 = math.pi * max(0.0, (r_r_2 ** 2) - (r_r_3 ** 2))             # ІІ ступінь (кільце)
         s_r_1_ring = math.pi * max(0.0, (r_r_1 ** 2) - (r_r_2 ** 2))       # І ступінь (кільце)
         s_r_1 = math.pi * (r_r_1 ** 2)                                      # Всі ступені разом
 
